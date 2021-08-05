@@ -16,7 +16,7 @@ after_success:
   - docker build -t owenyi3207/onego-backend ./backend
   - docker build -t owenyi3207/onego-nginx ./nginx
 
-#  - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
+  - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
 
   - docker push owenyi3207/onego-frontend
   - docker push owenyi3207/onego-backend
@@ -27,9 +27,10 @@ deploy:
   region: "us-east-2"
   app: "onego"
   env: "Onego-env"
-#  bucket_name: elasticbeanstalk-us-east-2-310881911728
+  bucket_name: elasticbeanstalk-us-east-2-310881911728
   bucket_path: "onego"
   on:
     branch: main
   
-#  access_key_id: $AWS_ACCESS_KEY_ID
+  access_key_id: $AWS_ACCESS_KEY_ID
+  secret_access_key: $AWS_SECRET_ACCESS_KEY
