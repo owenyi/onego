@@ -9,11 +9,10 @@ import lombok.Data;
 
 @Document(collection = "user")
 @Data
-public class User {
+public class UserVO {
     @Id
-    private String id;
+    private String userId;
     private String email;
-    private String name;
     private String nickName;
     private String intro;
     private String profileImage;

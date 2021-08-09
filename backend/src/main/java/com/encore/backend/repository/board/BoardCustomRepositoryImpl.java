@@ -1,4 +1,4 @@
-package com.encore.backend.repository;
+package com.encore.backend.repository.board;
 
 import java.util.List;
 
@@ -49,6 +49,13 @@ public class BoardCustomRepositoryImpl implements BoardCustomRepository {
     public boolean removeComment(String boardId, String commentId) {
         UpdateResult result = operations.updateFirst(Query.query(Criteria.where("_id").is(boardId)),
                 new Update().pull("comments", new Comment(commentId)), Board.class);
+        return result.getModifiedCount() > 0;
+    }
+
+    @Override
+    public boolean updateLikes(String boardId, Integer quantity) {
+        UpdateResult result = operations.updateFirst(Query.query(Criteria.where("_id").is(boardId)),
+                new Update().set("likes", quantity), Board.class);
         return result.getModifiedCount() > 0;
     }
 }

@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.encore.backend.repository.BoardRepository;
+import com.encore.backend.repository.board.BoardRepository;
 import com.encore.backend.vo.Board;
 import com.encore.backend.vo.Comment;
 import com.encore.backend.vo.Content;
@@ -28,25 +28,45 @@ public class BoardService {
 
     public List<Board> selectBoard(Map<String, Object> parameters) {
         String boardId = (String) parameters.get("boardId");
-        int pageNumber = (Integer) parameters.get("pageNumber");
         Page<Board> page = null;
         if (boardId != null) {
-            page = repo.findById(boardId, PageRequest.of(pageNumber, 1));
+            page = repo.findById(boardId, PageRequest.of(0, 1));
         } else {
+            int pageNumber = Integer.parseInt((String) parameters.get("pageNumber")) - 1;
             String title = (String) parameters.get("boardTitle");
             String nickName = (String) parameters.get("nickName");
             String tag = (String) parameters.get("tag");
             if (title != null) {
-                page = repo.findByTitleLike(title, PageRequest.of(pageNumber, 5));
+                page = repo.findByTitleLikeOrderByModDatetimeDesc(title, PageRequest.of(pageNumber, 5));
             } else if (nickName != null) {
-                page = repo.findByNickNameLike(nickName, PageRequest.of(pageNumber, 5));
+                page = repo.findByNickNameLikeOrderByModDatetimeDesc(nickName, PageRequest.of(pageNumber, 5));
             } else if (tag != null) {
-                page = repo.findByTagsLike(tag, PageRequest.of(pageNumber, 5));
+                page = repo.findByTagsLikeOrderByModDatetimeDesc(tag, PageRequest.of(pageNumber, 5));
             } else {
-                page = repo.findAll(PageRequest.of(pageNumber, 5));
+                page = repo.findAllByOrderByModDatetimeDesc(PageRequest.of(pageNumber, 5));
             }
         }
         return page.getContent();
+    }
+
+    public Long getBoardsCount(Map<String, Object> parameters) {
+        Long result = -1L;
+        String title = (String) parameters.get("boardTitle");
+        String nickName = (String) parameters.get("nickName");
+        String tag = (String) parameters.get("tag");
+        System.out.println(title);
+        if (title != null && nickName != null && tag != null) {
+            result = repo.countByTitleLikeOrNickNameOrTagsIn(title, nickName, tag);
+        } else if (title != null) {
+            result = repo.countByTitleLike(title);
+        } else if (nickName != null) {
+            result = repo.countByNickNameLike(nickName);
+        } else if (tag != null) {
+            result = repo.countByTagsIn(tag);
+        } else {
+            result = repo.count();
+        }
+        return result;
     }
 
     public boolean insertBoard(Board board) {
@@ -63,15 +83,15 @@ public class BoardService {
     public boolean deleteBoard(String boardId) {
         try {
             repo.deleteById(boardId);
+            return repo.existsById(boardId);
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
-        return true;
     }
 
     public List<Comment> getComment(Map<String, Object> parameters) {
-        int pageNumber = (Integer) parameters.get("pageNumber");
+        int pageNumber = Integer.parseInt((String) parameters.get("pageNumber"));
         int start = (pageNumber - 1) * 10;
         int end = pageNumber * 10;
         List<Board> board = repo.findCommentsById((String) parameters.get("boardId"), start, end);
@@ -85,7 +105,7 @@ public class BoardService {
     public boolean insertComment(Map<String, Object> parameters) {
         String boardId = (String) parameters.get("boardId");
         Calendar cal = Calendar.getInstance();
-        Comment comment = new Comment(new ObjectId().toString(), (String) parameters.get("userId"),
+        Comment comment = new Comment(new ObjectId().toString(), (String) parameters.get("userEmail"),
                 (String) parameters.get("nickName"), (String) parameters.get("comment"), cal.getTime());
         return repo.insertComment(boardId, comment);
     }
@@ -101,11 +121,9 @@ public class BoardService {
         String commentId = (String) parameters.get("commentId");
         String comment = (String) parameters.get("comment");
         String nickName = (String) parameters.get("nickName");
-        String userId = (String) parameters.get("userId");
-        System.out.println((String) parameters.get("modDatetime"));
+        String userId = (String) parameters.get("userEmail");
         Date modDatetime = new Date();
         Comment commentData = new Comment(commentId, userId, nickName, comment, modDatetime);
         return repo.updateComment(boardId, commentData);
     }
-
 }

@@ -1,4 +1,4 @@
-package com.encore.backend.repository;
+package com.encore.backend.repository.board;
 
 import java.util.List;
 
@@ -13,4 +13,6 @@ public interface BoardCustomRepository {
     boolean removeComment(String boardId, String commentId);
 
     boolean updateBoard(String boardId, List<Content> contents);
+
+    boolean updateLikes(String boardId, Integer quantity);
 }

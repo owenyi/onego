@@ -7,3 +7,8 @@ spring:
       database: onego
       username: onego
       password: test123
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://cognito-idp.ap-northeast-2.amazonaws.com/ap-northeast-2_brwr9Qyvh

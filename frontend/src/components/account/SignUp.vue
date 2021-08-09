@@ -7,7 +7,7 @@
             <li v-for="error in errors">{{ error }}</li>
             </ul>
         </p> -->
-        <v-text-field label="이메일" v-model="registerEmail"></v-text-field>
+        <v-text-field ref="registerEmail" label="이메일" v-model="registerEmail"></v-text-field>
         <v-text-field label="닉네임" v-model="nickname"></v-text-field>
         <v-text-field
             v-model="password"
@@ -19,29 +19,16 @@
             hint="At least 8 characters"
             counter
             @click:append="show1 = !show1"
+            @keyup.enter="signUpCheck"
         ></v-text-field><br>
-        <v-btn class="btn-padding-0" rounded outlined color="grey" @click="signUp"> 회원가입 </v-btn><br>
+        <v-btn class="btn-padding-0" rounded outlined color="grey" @click="signUpCheck"> 회원가입 </v-btn><br>
     </v-card-text>
 </template>
 <script>
 import Vue from 'vue'
-import { Auth } from 'aws-amplify';
-
-    async function signUp(email, nickname, password) {
-        try {
-            const { user } = Auth.signUp({
-                username: email,
-                password: password,
-                attributes: {          // optional - E.164 number convention
-                    email: email,
-                    nickname: nickname,// other custom attributes 
-                }
-            });
-        } catch (error) {
-            console.log('error signing up:', error);
-        }
-    }
-
+import { Auth } from 'aws-amplify'
+import {validateEmail} from '@/utils/validation'
+    
     export default Vue.extend({
         name: 'SignUp',
         props: {
@@ -67,11 +54,58 @@ import { Auth } from 'aws-amplify';
             this.nickname = this.info.nickname;
         },
         methods: {
-            signUp(){
-                signUp(this.registerEmail, this.nickname, this.password);
-                this.$set(this.$parent.$parent.$data.info, 'email', this.registerEmail)
-                this.$set(this.$parent.$parent.$data.info, 'nickname', this.nickname)
+            reset(){
+                this.registerEmail = '';
+                this.password ='';
+                this.nickname ='';
+                this.$refs.registerEmail.focus();
+            },
+            // signUp(email, nickname, password) {
                 
+                
+            // },
+            signUpCheck(){
+                if(this.registerEmail=='' || this.nickname=='' || this.password ==''){
+                    alert("이메일, 닉네임, 그리고 비밀번호를 모두 입력해주세요.");
+                    this.reset();
+                    return;
+                }else if(validateEmail(this.registerEmail)==false){
+                    alert("이메일 형식이 올바르지 않습니다.")
+                    this.reset();
+                    return;
+                }else if(this.password.length < 8){
+                    alert("8자리 이상의 비밀번호를 입력해주세요.")
+                    this.reset();
+                    return;
+                }
+                try {
+                    Auth.signUp({
+                        username: this.registerEmail,
+                        password: this.password,
+                        attributes: {          // optional - E.164 number convention
+                            email: this.registerEmail,
+                            nickname: this.nickname,// other custom attributes 
+                        }
+                    })
+                    .then(user =>{
+                        console.log('else '+this.registerEmail+' '+this.nickname)
+                        this.$set(this.$parent.$parent.$data.info, 'email', this.registerEmail)
+                        this.$set(this.$parent.$parent.$data.info, 'nickname', this.nickname)
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        console.log(err.code)
+                        if(err.code === "UsernameExistsException"){
+                            this.reset();
+                            alert("이미 등록된 이메일입니다. 다른 이메일을 입력해주세요.");   
+                        }
+                        
+                        
+                    });
+                    
+                } catch (error) {
+                    console.log('error signing up:', error);
+                }
             }
         }
     })

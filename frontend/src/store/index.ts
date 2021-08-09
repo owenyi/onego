@@ -10,12 +10,16 @@ export default new Vuex.Store({
     user: {
       signedIn: false,
       userInfo: new Object()
-    }
+    },
+    accessToken: ''
   },
   mutations: {
     changeSignedInState: function(state, user){
       Vue.set(state.user, 'signedIn', !!user)
       Vue.set(state.user, 'userInfo', user)
+    },
+    setAccessToken: function(state, token){
+      Vue.set(state, 'accessToken', token)
     }
   },
   getters: {
@@ -30,6 +34,10 @@ export default new Vuex.Store({
           .then(user => {
                 this.state.user.signedIn = !!user;
                 this.state.user.userInfo = user;
+                Auth.currentSession()
+                    .then((result: any) => {
+                        this.state.accessToken = result.accessToken.jwtToken;
+                })
 
             })
           .catch(err => {

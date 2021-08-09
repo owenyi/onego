@@ -10,8 +10,6 @@
 	import Vue from 'vue'
 	import Header from '@/components/layout/Header.vue'
 	import Footer from '@/components/layout/Footer.vue'
-	
-	// import { AmplifyEventBus } from 'aws-amplify-vue'
 
 	export default Vue.extend({
 		name: "App",
@@ -20,13 +18,7 @@
 		},
 		created(){
 			this.$store.dispatch('findUser');
-			// AmplifyEventBus.$on('authStaet', info => {
-			// 	if(info === 'signedIn'){
-			// 		this.findUser()
-			// 	}else{
-			// 		this.signedIn = false
-			// 	}
-			// })
+			
 		},
 	})
 </script>

@@ -78,7 +78,6 @@
 <script lang="ts">
 	import Vue from 'vue'
 	import { Auth } from 'aws-amplify';
-	import router from '../router'
 
 	export default Vue.extend({
 		name: "ChangePassword",
@@ -93,6 +92,7 @@
 							Auth.signOut()
 								.then(user => {
 									this.$store.commit('changeSignedInState', user);
+									this.$store.commit('setAccessToken', '');
 									console.log("logout")
 									window.open("/","_self");  
 								})

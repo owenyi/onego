@@ -35,7 +35,7 @@
         class="mx-auto"
         max-width="55%"
         max-height="600"
-		tile=false
+		tile
 		elevation="3"
 		:key="i" v-for="(article, i) in filteredSearch"
       >
