@@ -1,4 +1,5 @@
 spring:
+  port: 5000
   data:
     mongodb:
       host: onegomongo.ddns.net
