@@ -101,16 +101,6 @@
 						alert("성공적으로 비밀번호를 변경하였습니다.")
 					})
 					.catch(err => console.log(err));
-				
-				// try{
-				// 	return Auth.changePassword(this.$store.state.user.userInfo, this.curPass, this.newPass);
-					
-					
-					
-				// }catch(error){
-				// 	console.log('error changing password', error)
-				// }
-				// console.log("changed password")
 			},
 
 		},
@@ -130,7 +120,7 @@
 		}),
 		mounted() {
 			this.signedIn = this.$store.state.user.signedIn
-			this.email = this.$store.state.user.userInfo.attributes.email
+			this.email = this.$store.state.user.userAccount.attributes.email
 		}
 
 

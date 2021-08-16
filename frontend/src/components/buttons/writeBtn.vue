@@ -23,11 +23,6 @@ export default Vue.extend({
     name:"WriteBtn",
     data: ()=>({
     }),
-    methods:{
-        like(){
-            this.$emit('write', true);
-        }
-    }
 })
 </script>
 

@@ -1,18 +1,8 @@
 module.exports = {
-  devServer: {
-    disableHostCheck: true,
-      // proxy: {
-      //     '/': {
-      //         "target": 'http://127.0.0.1:8080/board',
-      //         "pathRewrite": { '^/': '' },
-      //         "changeOrigin": true,
-      //         "secure": false
-      //     }
-      // }
-  },
-  transpileDependencies: [
-    'vuetify'
-  ],
-
-  
+    devServer: {
+        proxy: "http://onegodev.ddns.net:8080"
+    },
+    transpileDependencies: [
+        'vuetify'
+    ],
 }

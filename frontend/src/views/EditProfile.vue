@@ -2,19 +2,24 @@
 	<div>
 		<v-flex id="editprof-margin" class="mx-auto">
 			<div align="center" class="spacing">
-				<label id="title">프로필 수정</label>
+				<h2 id="title">프로필 수정</h2>
 			</div>
 			<!-- 프로필 이미지 파일 선택 -->
 			<div align="right">
 				<v-list-item-avatar size=90>
-					<img :src="user.pic">
+					<img :src="user.profileImg">
 				</v-list-item-avatar>
-				<v-btn id="fab-btn"
+				<v-btn 
+					id="profileImg"
 					fab
 					elevation="4"
 					small
 					absolute
-					@click="selectImg">
+					@click="selectImg"
+					type="file"
+					ref="profileImage"
+					accept=".jpeg, .jpg, .png"
+					>
 					<v-icon>mdi-camera</v-icon>
 				</v-btn>
 				<div style="display:none;">
@@ -26,13 +31,13 @@
 					>
 				</div>
 			</div>
-			<!-- 이름 수정 -->
+			<!-- 이메일 -->
 			<div class="spacing">
 				<div style="margin-bottom:8px;">
-					<label class="subtitle">작가 이름</label>
+					<label class="subtitle">이메일</label>
 				</div>
 				<v-text-field id="name-input" class="name-input"
-					:value="user.name"
+					:value="user.email"
 					:rules="[rules.fieldLimit,rules.required]"
 					color="#00d5aa"
 					dense
@@ -40,16 +45,17 @@
 					maxlength="25"
 					single-line
 					flat solo
-					autofocus />
+					autofocus 
+					disabled/>
 			</div>
 			<v-divider class="divider-edit"/>
 			<!-- 닉네임 수정 -->
 			<div class="spacing">
 				<div style="margin-bottom:8px;">
-					<label class="subtitle">닉네임</label>
+					<label class="subtitle">작가 닉네임</label>
 				</div>
 				<v-text-field id="nickname-input" class="nickname-input"
-					:value="user.nickname"
+					v-model="user.nickname"
 					:rules="[rules.fieldLimit,rules.required]"
 					color="#00d5aa"
 					dense
@@ -74,7 +80,7 @@
 						solo
 						auto-grow
 						row-height="12px"
-						:value="user.intro"
+						v-model="user.intro"
 						:rules="[rules.areaLimit]"/>
 				</v-container>
 			</div>
@@ -102,16 +108,20 @@
 
 <script>
 	import Vue from 'vue'
+	import http from '../http/http-common'
+	import { Auth } from 'aws-amplify'
 
 	export default Vue.extend({
 		name: "EditProfile",
 		data: () => ({
 			user:{
-				name:'Mary Jane',
-				nickname:'Mary',
-				email:'mj123@gmail.com',
-				intro:'Hello, I am an avid writer',
-				pic:"https://randomuser.me/api/portraits/women/82.jpg"
+				nickname:'',
+				email:'',
+				intro:'',
+				profileImg: 'null',
+				profileImgFile: null,
+				errored: false,
+				loading: true
 			},
 			rules: {
 				fieldLimit: v => v.length <= 25 || 'Max 25 characters',
@@ -120,18 +130,58 @@
 			},
 		}),
 		methods:{
-			updateProfile(){
-				location.href='#';
+			async updateProfile(){
+				// form data for updating userProfile
+				const frm = new FormData();
+				frm.append('nickName', this.user.nickname);
+				frm.append('profileImageFile', this.user.profileImgFile);
+				frm.append('intro', this.user.intro);
+				
+				// updating cognito
+				const user = await Auth.currentAuthenticatedUser();
+				await Auth.updateUserAttributes(user, {
+					'nickname': this.user.nickname
+				});
+
+				// updating user table
+				await http
+					.put('/users/'+this.user.email, frm)
+					.then(response => {
+							console.log(response)
+					})
+					.catch(error => {
+						this.errored = true
+					} )
+					.finally(() => {
+						this.loading = false
+            	  })    
+				
+				// 화면 새로고침
+				this.$router.go()
 			},
 			selectImg(){
 				document.getElementById("fileUpload").click();
-				//axios file upload here (?)
 			},
 			onFileChanged(e){
 				let file = e.target.files[0];
-				console.log(file.name);
+				this.user.profileImgFile = file
+				const url = URL.createObjectURL(file)
+				this.user.profileImg = url
 			}
-		}
+		},
+		async created(){
+			if(Object.keys(this.$store.state.user.userAccount).length != 0){
+				await http
+					.get('/users/'+this.$store.state.user.userAccount.attributes.email)
+					.then(response => {
+						this.$store.commit('setUserInfo', response.data);
+					})
+			}
+			this.user.nickname = this.$store.state.user.userAccount.attributes.nickname
+			this.user.email = this.$store.state.user.userAccount.attributes.email
+			this.user.intro = this.$store.state.user.userInfo.intro
+			this.user.profileImg = this.$store.state.user.userInfo.profileImage
+		},
 	})
 </script>
 
@@ -162,8 +212,8 @@
 #save-btn:hover{
 	color:#02bf99 !important;
 }
-#fab-btn{
-	margin-top:65px;
+#profileImg{
+	margin-top:105px;
 	margin-left:-115px;
 }
 .name-input .v-input__slot,

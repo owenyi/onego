@@ -5,16 +5,16 @@
 		<div class="image-container">
 			<img src="@/assets/images/beach.jpg" width="100%" height="auto">
 			<v-list-item-avatar id="prof-pic" absolute elevation="4" size=100>
-				<img src="@/assets/logo/onego_mac.png">
+				<img :src="user.profileImage">
 			</v-list-item-avatar>
-			<v-btn id="myprof-write-btn" @click="changeState" absolute rounded outlined color="#00d5aa">
+			<v-btn id="myprof-write-btn" @click="changeState, subscribe(user.email)" absolute rounded outlined color="#00d5aa" >
 				구독
 			</v-btn>
 
 		</div>
 	  </div>
 	  <div class="spacing">
-		  <div><label style="font-size:1.4em;font-weight:bold;">{{user.nickname}}</label></div>
+		  <div><label style="font-size:1.4em;font-weight:bold;">{{user.nickName}}</label></div>
 		  <div><label style="font-size:0.95em;opacity:75%;">{{user.intro}}</label></div>
 	  </div>
 	  <div class="spacing">
@@ -22,7 +22,7 @@
 		  <a :href="disabledFollower ? 'javascript:void(0)' : '#'" id="follower-hover">
 			<div>
 		    <div><label class="label label-follow" style="font-size:0.80em;opacity:60%;">구독자</label></div>
-		    <div><label class="label label-number" style="font-size:1.2em;opacity:55%;">{{user.followers}}</label></div>
+		    <div><label class="label label-number" style="font-size:1.2em;opacity:55%;">{{user.followers.length}}</label></div>
 			</div>
 		  </a>
 		</div>
@@ -30,7 +30,7 @@
 		  <a :href="disabledFollowing ? 'javascript:void(0)' : '#'" id="following-hover">
 			<div>
 		    <div><label class="label label-follow" style="font-size:0.80em;opacity:60%;">관심 작가</label></div>
-		    <div><label class="label label-number" style="font-size:1.2em;opacity:55%;">{{user.following}}</label></div>
+		    <div><label class="label label-number" style="font-size:1.2em;opacity:55%;">{{user.followings.length}}</label></div>
 			</div>
 		  </a>
 	    </div>
@@ -45,8 +45,15 @@
 
 <script lang="ts">
 	import Vue from 'vue'
+	import http from '../http/http-common'
 
 	export default Vue.extend({
+		props: {
+			emailProp: {
+				type: String,
+				default: "",
+			}
+		},
 		data: () => ({
 			user:{
 				name:'원고', nickname:'원고팀', email:'onego@gmail.com',
@@ -54,6 +61,7 @@
 				pic:"https://randomuser.me/api/portraits/women/82.jpg",
 				followers:'100', following:'0'
 			},
+			email: '',
 			disabledFollowing:false,
 			disabledFollower:false
 		}),
@@ -75,15 +83,21 @@
 				}
 			}
 		},
-		created(){
+		async created(){
 			if(this.user.following == '0'){
 				this.disabledFollowing = true;
 			}
 			if(this.user.followers == '0'){
 				this.disabledFollower = true;
 			}
-			//console.log(this.disabledFollowing);
-			//console.log(this.disabledFollower);
+			this.email = this.emailProp
+			
+			await http
+				.get('/users/'+this.email)
+				.then(response => {
+					this.user = response.data
+					
+				})
 		}
 	})
 </script>

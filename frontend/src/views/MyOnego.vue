@@ -13,7 +13,7 @@
 		</div>
 		<div v-else>
 	      <div v-for="(article,i) in savedList" :key="i">
-			<a href="#" class="edit-article">
+			<a :href="article.link" class="edit-article">
 			  <div>
 		      <div class="article-title" style="font-size:1.35rem;">{{article.title}}</div>
 		      <div class="article-text">{{article.text}}</div><br>
@@ -51,9 +51,9 @@
 	export default Vue.extend({
 		data: () => ({
 			savedList:[
-				{title:'테스트 입니다.',text:'테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트',
-				date:'7.27.2021'},
-				{title:'테스트 입니다.',text:'테스트테스트테스트테스트테스트테스트테스트테스트',date:'7.27.2021'},
+				{title:'콘텐츠 유저',text:'테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트테스트',
+				date:'7.27.2021', link:'content1/'},
+				{title:'콘텐츠 작성자',text:'테스트테스트테스트테스트테스트테스트테스트테스트',date:'7.27.2021', link:'content2/'},
 				{title:'테스트 입니다.',text:'테스트테스트테스트테스트테스트테스트테스트테스트',date:'7.27.2021'}
 			],
 			postedList:[],

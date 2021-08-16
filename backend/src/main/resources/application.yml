@@ -1,8 +1,12 @@
 spring:
+  profiles:
+    includes:
+      - aws
+      - credentials
   data:
     mongodb:
-      host: onegomongo.ddns.net
-      port: 80
+      host: onegodev.ddns.net
+      port: 2727
       authentication-database: admin
       database: onego
       username: onego

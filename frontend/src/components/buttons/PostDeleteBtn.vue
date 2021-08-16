@@ -25,9 +25,6 @@ export default Vue.extend({
     data: ()=>({
     }),
     methods:{
-        comment(){
-            this.$emit('delete', true);
-        }
     }
 
 })

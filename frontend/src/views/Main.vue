@@ -37,7 +37,7 @@ import MemberCard from '../components/layout/MemberCard.vue'
 		},
         mounted() {
             console.log('main user: '+this.$store.state.user.signedIn);
-            console.log(this.$store.state.user.userInfo);
+            console.log(this.$store.state.user.userAccount);
         }
 	})
 </script>

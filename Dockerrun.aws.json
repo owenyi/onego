@@ -16,6 +16,13 @@
           "memory": 128
       },
       {
+          "name": "ai",
+          "image": "owenyi3207/onego-ai",
+          "hostname": "ai",
+          "essential": false,
+          "memory": 128
+      },
+      {
           "name": "nginx",
           "image": "owenyi3207/onego-nginx",
           "hostname": "nginx",

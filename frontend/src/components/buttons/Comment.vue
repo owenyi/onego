@@ -10,7 +10,6 @@
     <v-btn
         icon
         color="#00d5aa"
-        @click="comment"
     >
         <span style="font-size: 1.8em;"><i class="fa fa-comment-dots"></i></span>
     </v-btn>
@@ -26,9 +25,6 @@ export default Vue.extend({
     data: ()=>({
     }),
     methods:{
-        comment(){
-            this.$emit('comment', true);
-        }
     }
 
 })

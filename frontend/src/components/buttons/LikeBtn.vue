@@ -6,7 +6,6 @@
     <v-btn
         icon
         color="#00d5aa"
-        @click="like"
     >
         <span style="font-size: 1.8em;"><i class="fa fa-heart"></i></span>
     </v-btn>
@@ -22,9 +21,6 @@ export default Vue.extend({
     data: ()=>({
     }),
     methods:{
-        like(){
-            this.$emit('like', true);
-        }
     }
 
 })

@@ -5,12 +5,18 @@
 		<div class="image-container">
 			<img src="@/assets/images/beach.jpg" width="100%" height="auto">
 			<v-list-item-avatar id="prof-pic" absolute elevation="4" size=100>
-				<img :src="user.pic">
+				<img :src="user.profileImage">
 			</v-list-item-avatar>
-			<v-btn id="myprof-write-btn" href="/write" absolute rounded outlined color="#00d5aa">
+			<v-btn id="myprof-write-btn" href="/write" absolute rounded outlined color="#00d5aa" v-if="myProfileFlag==true">
 				글쓰기
 			</v-btn>
-			<v-menu bottom left offset-y content-class="elevation-0">
+			<v-btn id="myprof-subscribe-btn" @click="subscribe(user.email)" absolute rounded outlined color="#00d5aa" v-if="this.myProfileFlag==false && this.follow==false">
+				구독
+			</v-btn>
+			<v-btn id="myprof-unsubscribe-btn" value="" @click="unsubscribe(user.email)" absolute rounded outlined color="#00d5aa" v-if="this.myProfileFlag==false && this.follow==true">
+				
+			</v-btn>
+			<v-menu bottom left offset-y content-class="elevation-0"  v-if="this.myProfileFlag==true">
 				<template v-slot:activator="{ on, attrs }">
 					<v-btn icon absolute
 						v-bind="attrs"
@@ -35,23 +41,23 @@
 		</div>
 	  </div>
 	  <div class="spacing">
-		  <div><label style="font-size:1.4em;font-weight:bold;">{{user.nickname}}</label></div>
+		  <div><label style="font-size:1.4em;font-weight:bold;">{{user.nickName}}</label></div>
 		  <div><label style="font-size:0.95em;opacity:75%;">{{user.intro}}</label></div>
 	  </div>
 	  <div class="spacing">
 	    <div class="follow">
-		  <a :href="disabledFollower ? 'javascript:void(0)' : '#'" id="follower-hover" class="link-hover">
+		  <a @click="followerList(user.email)" id="follower-hover" class="link-hover">
 			<div>
 		    <div><label class="label label-follow" style="font-size:0.80em;opacity:60%;">구독자</label></div>
-		    <div><label class="label label-number" style="font-size:1.2em;opacity:55%;">{{user.followers}}</label></div>
+		    <div><label class="label label-number" style="font-size:1.2em;opacity:55%;">{{this.user.followers}}</label></div>
 			</div>
 		  </a>
 		</div>
 		<div class="follow" style="margin-left:50px;">
-		  <a :href="disabledFollowing ? 'javascript:void(0)' : '/userprofile'" id="following-hover" class="link-hover">
+		  <a @click="followingList(user.email)" id="following-hover" class="link-hover">
 			<div>
 		    <div><label class="label label-follow" style="font-size:0.80em;opacity:60%;">관심 작가</label></div>
-		    <div><label class="label label-number" style="font-size:1.2em;opacity:55%;">{{user.following}}</label></div>
+		    <div><label class="label label-number" style="font-size:1.2em;opacity:55%;">{{this.user.followings}}</label></div>
 			</div>
 		  </a>
 	    </div>
@@ -66,27 +72,110 @@
 
 <script lang="ts">
 	import Vue from 'vue'
+	import http from '../http/http-common'
 
 	export default Vue.extend({
+		props: {
+			emailProp: {
+				type: String,
+				default: "",
+			}
+		},
 		data: () => ({
+			email: '',
+			myProfileFlag: false,
 			user:{
 				name:'Mary Jane', nickname:'Mary', email:'mj123@gmail.com',
 				intro:'Hello, I am an avid writer',
 				pic:"https://randomuser.me/api/portraits/women/82.jpg",
-				followers:'3', following:'5'
+				followers:'3', followings:'5'
 			},
+			followList: [],
 			disabledFollowing:false,
-			disabledFollower:false
+			disabledFollower:false,
+			errored: false,
+			loading: true,
+			follow: false
 		}),
-		created(){
-			if(this.user.following == '0'){
+		methods: {
+			async subscribe(email: string){
+				await http
+					.post('/followings/'+this.$store.state.user.userAccount.attributes.email, {'followEmail': email})
+					.then(response => {
+						console.log(response)
+					})
+					.catch(() => this.errored = true )
+					.finally(() => {
+						this.loading = false
+					})
+				this.follow = true
+			},
+			async unsubscribe(email: string){
+				await http
+					.delete('/followings/'+this.$store.state.user.userAccount.attributes.email, {data: {'followEmail': email}})
+					.then(response => {
+						console.log(response)
+					})
+					.catch(() => this.errored = true )
+					.finally(() => {
+						this.loading = false
+					})
+					this.follow = true
+				this.follow = false
+			},
+			followingList(email: string){
+				this.$store.commit('setFollowingUser', email);
+				this.$router.push({
+					name: "Following",
+				});
+			},
+			followerList(email: string){
+				this.$store.commit('setFollowerUser', email);
+				this.$router.push({
+					name: "Follower"
+				});
+				
+			}
+		},
+		async created(){
+			this.email = (this.emailProp.length == 0 ? this.$store.state.user.userAccount.attributes.email : this.emailProp)
+			// Own Profile
+			if(this.email == this.$store.state.user.userAccount.attributes.email){
+				this.myProfileFlag = true
+				if(Object.keys(this.$store.state.user.userAccount).length != 0){
+					await http
+						.get('/users/'+this.$store.state.user.userAccount.attributes.email)
+						.then(response => {
+							this.$store.commit('setUserInfo', response.data);
+							this.user = this.$store.state.user.userInfo
+						})
+				}
+				this.user.followers = this.$store.state.user.userInfo.followers.length
+				this.user.followings = this.$store.state.user.userInfo.followings.length
+				this.followList = this.$store.state.user.userInfo.followings
+				
+			// Other writer's profile
+			}else{
+				await http
+					.get('/users/'+this.emailProp)
+					.then(response => {
+						this.user = response.data
+					})
+				this.user.followers = String(this.user.followers.length)
+				this.user.followings = String(this.user.followings.length)
+			}
+			// to check the writer is in the user's following list
+			for(var i=0; i<this.$store.state.user.userInfo.followings.length; i++){
+				if(this.user.email === this.$store.state.user.userInfo.followings[i]) 
+					this.follow = true
+			}
+			
+			if(this.user.followings == '0'){
 				this.disabledFollowing = true;
 			}
 			if(this.user.followers == '0'){
 				this.disabledFollower = true;
 			}
-			//console.log(this.disabledFollowing);
-			//console.log(this.disabledFollower);
 		}
 	})
 </script>
@@ -120,7 +209,7 @@
 	bottom:-55px;
 	right:20px;
 }
-.image-container #myprof-write-btn{
+.image-container #myprof-write-btn, #myprof-subscribe-btn, #myprof-unsubscribe-btn{
 	position:absolute;
 	bottom:-150px;
 	right:20px;
@@ -150,5 +239,21 @@
 .link-hover:hover .label-number{
 	text-decoration:underline !important;
 	color:#00d5aa !important;
+}
+#myprof-unsubscribe-btn{
+	background-color: #00d5aa !important;
+      color: white !important;
+	  /* font-weight: 550; */
+}
+#myprof-unsubscribe-btn::after{
+	content: "구독중 ✓"
+}
+#myprof-unsubscribe-btn:hover{
+	color: #00d5aa !important;
+	border-color: #00d5aa !important;
+	background-color: white !important;
+}
+#myprof-unsubscribe-btn:hover:after{
+	content: "구독해지"
 }
 </style>

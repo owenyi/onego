@@ -10,21 +10,16 @@ import lombok.Data;
 
 @Data
 public class UserDto {
-    private String userId;
     @NotNull(message = "Email cannot be null")
     @Size(min = 2, message = "Email not be less than two characters")
     @Email
     private String email;
     @NotNull(message = "Name cannot be null")
     @Size(min = 2, message = "Name not be less than two characters")
-    private String name;
     private String nickName;
-    private String intro;
     private String profileImage;
+    private String intro;
 
-    @NotNull(message = "Password cannot be null")
-    @Size(min = 8, message = "Password not be less than 8 characters")
-    private String pwd;
     private List<String> scraps;
     private List<String> likes;
     private List<String> followers;
