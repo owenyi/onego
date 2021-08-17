@@ -22,3 +22,9 @@ services:
         volumes:
             - $HOME/:/.m2
             - ./backend:/app
+    ai:
+        build:
+            dockerfile: Dockerfile
+            context: ./ai
+        volumes:
+            - ./ai:/app
