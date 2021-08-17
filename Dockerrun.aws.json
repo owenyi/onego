@@ -7,20 +7,6 @@
           "hostname": "backend",
           "essential": false,
           "memory": 128
-      },
-      {
-          "name": "nginx",
-          "image": "owenyi3207/onego-nginx",
-          "hostname": "nginx",
-          "essential": true,
-          "portMappings": [
-              {
-                  "hostPort": 80,
-                  "containerPort": 80
-              }
-          ],
-          "links": ["backend"],
-          "memory": 128
       }
   ]
 }
