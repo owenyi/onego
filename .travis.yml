@@ -3,10 +3,10 @@ sudo: required
 services:
 - docker
 before_install:
-- openssl aes-256-cbc -K $encrypted_12eaa4ded41a_key -iv $encrypted_12eaa4ded41a_iv
-  -in config.tar.enc -out config.tar -d
 - openssl aes-256-cbc -K $encrypted_05887878e461_key -iv $encrypted_05887878e461_iv
   -in application-credentials.tar.enc -out application-credentials.tar -d
+- openssl aes-256-cbc -K $encrypted_12eaa4ded41a_key -iv $encrypted_12eaa4ded41a_iv
+  -in config.tar.enc -out config.tar -d
 - docker build -t owenyi3207/vue-test-app -f ./frontend/Dockerfile.dev ./frontend
 - tar xvf config.tar -C frontend/src
 - tar xvf application-credentials.tar -C backend/src/main/resources
