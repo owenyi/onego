@@ -1,6 +1,6 @@
 module.exports = {
     devServer: {
-        disableHostCheck: true,
+        proxy: "http://onegodev.ddns.net:8080"
     },
     transpileDependencies: [
         'vuetify'
