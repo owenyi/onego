@@ -9,4 +9,4 @@ FROM openjdk:11-jre-slim
 WORKDIR /app
 ARG --from=builder JAR_FILE=/app/target/*.jar
 COPY --from=builder ${JAR_FILE} app.jar
-CMD ["java", "-jar", "/app/app.jar"]
+CMD ["java", "-jar", "app.jar"]
