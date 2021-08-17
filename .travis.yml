@@ -12,12 +12,12 @@ script:
   - docker run -e CI=true owenyi3207/vue-test-app yarn run lint -- --fix 
 
 after_success:
-  - docker build -t owenyi3207/onego-frontend ./frontend
+  - docker build -t owenyi3207/onego-backend ./backend
   - docker build -t owenyi3207/onego-nginx ./nginx
 
   - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
 
-  - docker push owenyi3207/onego-frontend
+  - docker push owenyi3207/onego-backend
   - docker push owenyi3207/onego-nginx
 
 deploy:
