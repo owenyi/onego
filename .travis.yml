@@ -13,10 +13,12 @@ script:
 
 after_success:
   - docker build -t owenyi3207/onego-backend ./backend
+  - docker build -t owenyi3207/onego-nginx ./nginx
 
   - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
 
   - docker push owenyi3207/onego-backend
+  - docker push owenyi3207/onego-nginx
 
 deploy:
   provider: elasticbeanstalk
