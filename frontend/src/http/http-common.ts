@@ -2,7 +2,7 @@ import store from "@/store";
 import axios from "axios";
 
 export default axios.create({
-    baseURL: "/api",
+    baseURL: "http://onego-env.eba-nasmictx.ap-northeast-2.elasticbeanstalk.com/api",
     headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': '*',
