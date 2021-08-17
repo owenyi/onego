@@ -1,48 +1,37 @@
 language: generic
-
 sudo: required
-
 services:
-  - docker
-
+- docker
 before_install:
-  - openssl aes-256-cbc -K $encrypted_12eaa4ded41a_key -iv $encrypted_12eaa4ded41a_iv
-    -in config.tar.enc -out config.tar -d
-  - openssl aes-256-cbc -K $encrypted_05887878e461_key -iv $encrypted_05887878e461_iv
-    -in application-credentials.tar.enc -out application-credentials.tar -d
-  - docker build -t owenyi3207/vue-test-app -f ./frontend/Dockerfile.dev ./frontend
-  - tar xvf config.tar -C frontend/src
-  - tar xvf application-credentials.tar -C backend/src/main/resources
-
+- openssl aes-256-cbc -K $encrypted_12eaa4ded41a_key -iv $encrypted_12eaa4ded41a_iv
+  -in config.tar.enc -out config.tar -d
+- openssl aes-256-cbc -K $encrypted_05887878e461_key -iv $encrypted_05887878e461_iv
+  -in application-credentials.tar.enc -out application-credentials.tar -d
+- docker build -t owenyi3207/vue-test-app -f ./frontend/Dockerfile.dev ./frontend
+- tar xvf config.tar -C frontend/src
+- tar xvf application-credentials.tar -C backend/src/main/resources
 script:
-  - docker run -e CI=true owenyi3207/vue-test-app yarn run lint -- --fix 
-
+- docker run -e CI=true owenyi3207/vue-test-app yarn run lint -- --fix
 after_success:
-  - docker build -t owenyi3207/onego-frontend ./frontend
-  - docker build -t owenyi3207/onego-backend ./backend
-  - docker build -t owenyi3207/onego-ai ./ai
-  - docker build -t owenyi3207/onego-nginx ./nginx
-
-  - echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
-
-  - docker push owenyi3207/onego-frontend
-  - docker push owenyi3207/onego-backend
-  - docker push owenyi3207/onego-ai
-  - docker push owenyi3207/onego-nginx
-
+- docker build -t owenyi3207/onego-frontend ./frontend
+- docker build -t owenyi3207/onego-backend ./backend
+- docker build -t owenyi3207/onego-ai ./ai
+- docker build -t owenyi3207/onego-nginx ./nginx
+- echo "$DOCKER_HUB_PASSWORD" | docker login -u "$DOCKER_HUB_ID" --password-stdin
+- docker push owenyi3207/onego-frontend
+- docker push owenyi3207/onego-backend
+- docker push owenyi3207/onego-ai
+- docker push owenyi3207/onego-nginx
 deploy:
   provider: elasticbeanstalk
-  region: "ap-northeast-2"
-  app: "onego"
-  env: "Onego-env"
+  region: ap-northeast-2
+  app: onego
+  env: Onego-env
   bucket_name: elasticbeanstalk-ap-northeast-2-310881911728
-  bucket_path: "onego"
-  on:
+  bucket_path: onego
     branch: main
-  
-  access_key_id: $AWS_ACCESS_KEY_ID
-  secret_access_key: $AWS_SECRET_ACCESS_KEY
-
+  access_key_id: "$AWS_ACCESS_KEY_ID"
+  secret_access_key: "$AWS_SECRET_ACCESS_KEY"
 notifications:
   slack:
     secure: QXtBKvpDICnSIWyMG0U5oqMvmHvk1q93KOhYduWVXSHRlLV+RUHh7u1QOrqY1MG21EF6bljHf4ei4mdUGZLOkbrUxp3tU6ONgS4t3Fxs4jnXwUkNdAy3BU9Cbi+pkwN6e5feiDvZoE35rcrvSmhOpdUzi2EznWyB+Y6e+3MPJJ8V04zQbDqDCblnycYlGNJKNmEr1FTBd8aTDceiZyus2stX17kjrpD4qxPV2OCVSmsqWdvvdj8gViFZBrpjj0ubO1wdeA6g7DML0vhta2MZ8kLahwDEwOp2mLYK4u5Kc6CvR2WCtQkKfl/MUyF92TP/tHCcCTvuWl1IVS66iHGeMvFwT1egD2ZejHG0gIXOSsLYcgM85VmNDdbx8Iuiyu8jZ9IoUGg2qMWfZ3f7SRw0MuKpXE0YZrZgVltXxr46n4RleH4Rspo/RmarQsV18G2TK09K+7zvD9fcjSi9TR1meoYtochgOYjBzsg7uoQSLta4cJSajSVcTEl2yZTY3NySloAItWzc5VUG7txL4v5F9wQxGKl7CoSFeeRLMMzRxz63F2g8eRnzRKO/Y/PEgCQTddwTX8rtxXUeGRQHIHhwAstRVdkgYgvtpE3H+X5s4EJtkVvUMu/wCEgzd2njSvkuZbCi2phhQa65Q/HICeiZm3Di6YVb+vF9OGZSJkqPI4c=
