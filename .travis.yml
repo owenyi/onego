@@ -4,8 +4,6 @@ services:
 - docker
 before_install:
 - docker build -t owenyi3207/vue-test-app -f ./frontend/Dockerfile.dev ./frontend
-- tar xvf config.tar -C frontend/src
-- tar xvf application-credentials.tar -C backend/src/main/resources
 script:
 - docker run -e CI=true owenyi3207/vue-test-app yarn run lint -- --fix
 after_success:
