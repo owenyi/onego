@@ -26,7 +26,7 @@ deploy:
   provider: elasticbeanstalk
   region: "ap-northeast-2"
   app: "onego"
-  env: "Onego-env-1"
+  env: "Onego-env"
   bucket_name: elasticbeanstalk-ap-northeast-2-310881911728
   bucket_path: "onego"
   on:
