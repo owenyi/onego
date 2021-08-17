@@ -9,13 +9,6 @@
           "memory": 128
       },
       {
-          "name": "backend",
-          "image": "owenyi3207/onego-backend",
-          "hostname": "backend",
-          "essential": false,
-          "memory": 512
-      },
-      {
           "name": "nginx",
           "image": "owenyi3207/onego-nginx",
           "hostname": "nginx",
@@ -26,7 +19,7 @@
                   "containerPort": 80
               }
           ],
-          "links": ["frontend", "backend"],
+          "links": ["frontend"],
           "memory": 128
       }
   ]

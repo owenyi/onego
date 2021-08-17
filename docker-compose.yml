@@ -2,11 +2,8 @@ version: "3"
 services:
     frontend:
         build:
-            dockerfile: Dockerfile.dev
+            dockerfile: Dockerfile
             context: ./frontend
-        volumes:
-            - /app/node_modules
-            - ./frontend:/app
         stdin_open: true
     nginx:
         restart: always
@@ -17,11 +14,8 @@ services:
             - "8080:80"
     backend:
         build:
-            dockerfile: Dockerfile.dev
+            dockerfile: Dockerfile
             context: ./backend
-        volumes:
-            - $HOME/:/.m2
-            - ./backend:/app
     ai:
         build:
             dockerfile: Dockerfile
