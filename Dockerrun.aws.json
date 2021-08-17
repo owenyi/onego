@@ -6,7 +6,7 @@
           "image": "owenyi3207/onego-backend",
           "hostname": "backend",
           "essential": false,
-          "memory": 128
+          "memory": 256
       },
       {
           "name": "nginx",
@@ -20,7 +20,7 @@
               }
           ],
           "links": ["backend"],
-          "memory": 256
+          "memory": 128
       }
   ]
 }
