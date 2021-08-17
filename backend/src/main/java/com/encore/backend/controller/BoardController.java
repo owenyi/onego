@@ -3,9 +3,9 @@ package com.encore.backend.controller;
 import java.util.List;
 import java.util.Map;
 
+import com.encore.backend.dto.BoardDTO;
 import com.encore.backend.service.BoardService;
-import com.encore.backend.vo.Board;
-import com.encore.backend.vo.Comment;
+import com.encore.backend.vo.BoardVO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,14 +13,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@CrossOrigin(origins = "*", maxAge = 3600)
+@CrossOrigin(origins = "*", allowedHeaders = "*", maxAge = 3600)
 public class BoardController {
     private BoardService service;
 
@@ -30,8 +32,8 @@ public class BoardController {
     }
 
     @GetMapping("/board")
-    public ResponseEntity<List<Board>> getBoard(@RequestParam Map<String, Object> parameters) {
-        List<Board> list = service.selectBoard(parameters);
+    public ResponseEntity<List<BoardVO>> getBoard(@RequestParam Map<String, Object> parameters) {
+        List<BoardVO> list = service.selectBoard(parameters);
         return ResponseEntity.status(list == null ? HttpStatus.NOT_FOUND : HttpStatus.OK).body(list);
     }
 
@@ -41,18 +43,12 @@ public class BoardController {
         return ResponseEntity.status(HttpStatus.OK).body(count);
     }
 
-    @PostMapping("/board")
-    public ResponseEntity<String> insertBoard(@RequestBody Board board) {
-        boolean result = service.insertBoard(board);
+    @RequestMapping(value = "/board", method = { RequestMethod.POST, RequestMethod.PUT })
+    public ResponseEntity<String> upsertBoard(@RequestPart BoardDTO board, @RequestPart MultipartFile titleImageFile) {
+        boolean result = service.upsertBoard(board, titleImageFile);
         return ResponseEntity.status(result ? HttpStatus.CREATED : HttpStatus.NO_CONTENT)
                 .body("insert board " + (result ? "suceess" : "fail"));
-    }
 
-    @PutMapping("/board")
-    public ResponseEntity<String> updateBoard(@RequestBody Map<String, Object> parameters) {
-        boolean result = service.updateBoard(parameters);
-        return ResponseEntity.status(result ? HttpStatus.CREATED : HttpStatus.NO_CONTENT)
-                .body("update board " + (result ? "suceess" : "fail"));
     }
 
     @DeleteMapping("/board")
@@ -62,30 +58,4 @@ public class BoardController {
                 .body("delete board " + (result ? "suceess" : "fail"));
     }
 
-    @GetMapping("/comment")
-    public ResponseEntity<List<Comment>> getComment(@RequestParam Map<String, Object> parameters) {
-        List<Comment> comments = service.getComment(parameters);
-        return ResponseEntity.status(comments == null ? HttpStatus.NOT_FOUND : HttpStatus.OK).body(comments);
-    }
-
-    @PostMapping("/comment")
-    public ResponseEntity<String> insertComment(@RequestBody Map<String, Object> parameters) {
-        boolean result = service.insertComment(parameters);
-        return ResponseEntity.status(result ? HttpStatus.CREATED : HttpStatus.NO_CONTENT)
-                .body("update comment " + (result ? "suceess" : "fail"));
-    }
-
-    @DeleteMapping("/comment")
-    public ResponseEntity<String> removeComment(@RequestBody Map<String, Object> parameters) {
-        boolean result = service.removeComment(parameters);
-        return ResponseEntity.status(result ? HttpStatus.CREATED : HttpStatus.NO_CONTENT)
-                .body("delete comment " + (result ? "suceess" : "fail"));
-    }
-
-    @PutMapping("/comment")
-    public ResponseEntity<String> updateComment(@RequestBody Map<String, Object> parameters) {
-        boolean result = service.updateComment(parameters);
-        return ResponseEntity.status(result ? HttpStatus.CREATED : HttpStatus.NO_CONTENT)
-                .body("update comment " + (result ? "suceess" : "fail"));
-    }
 }

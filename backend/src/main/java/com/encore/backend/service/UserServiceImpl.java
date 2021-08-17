@@ -1,39 +1,45 @@
 package com.encore.backend.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.encore.backend.dto.UserDto;
 import com.encore.backend.repository.user.UserRepository;
+import com.encore.backend.s3.S3Uploader;
 import com.encore.backend.vo.UserVO;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
+    private final S3Uploader s3Uploader;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, S3Uploader s3Uploader) {
         this.userRepository = userRepository;
+        this.s3Uploader = s3Uploader;
     }
 
     @Override
-    public UserDto createUser(UserDto userDto) {
+    public UserDto createUser(UserDto userDto) throws IOException {
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         UserVO user = mapper.map(userDto, UserVO.class);
+        user.setIntro("");
         user.setFollowers(new ArrayList<String>());
         user.setFollowings(new ArrayList<String>());
         user.setLikes(new ArrayList<String>());
         user.setScraps(new ArrayList<String>());
         user.setTags(new ArrayList<String>());
-
+        user.setProfileImage(
+                "https://avataaars.io/?avatarStyle=Transparent&topType=ShortHairShortCurly&hairColor=Black&facialHairType=Blank&clotheType=Hoodie&clotheColor=White&eyeType=Default&eyebrowType=DefaultNatural&mouthType=Default&skinColor=Light");
         userRepository.save(user);
         UserDto returnUserDto = mapper.map(user, UserDto.class);
         return returnUserDto;
@@ -65,77 +71,85 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean updateUserByEmail(String email, UserVO user) {
-        boolean result = userRepository.updateUserByEmail(email, user);
+    public boolean updateUserByEmail(String email, UserDto userDto, MultipartFile profileImage) {
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        UserVO userVO = mapper.map(userDto, UserVO.class);
+        boolean result = true;
+        try {
+            if (profileImage.getOriginalFilename().length() > 0)
+                userVO.setProfileImage(s3Uploader.upload(profileImage, "profileImages", email));
+            result = userRepository.updateUserByEmail(email, userVO);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
         return result;
     }
 
     @Override
     public boolean deleteUserByEmail(String email) {
-        boolean flag = userRepository.deleteUserByEmail(email);
-        return flag;
+        boolean result = true;
+        try {
+            s3Uploader.remove(email);
+            result = userRepository.deleteUserByEmail(email);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return result;
     }
 
     @Override
     public List<String> getUserScraps(String email, int scrapPageNumber) {
-        int start = (scrapPageNumber - 1) * 10;
-        int end = scrapPageNumber * 10;
-        List<String> returnScraps = userRepository.findScrapsByEmail(email, start, end).getScraps();
+        List<String> returnScraps = userRepository
+                .findScrapsByEmail(email, (scrapPageNumber - 1) * 10, scrapPageNumber * 10).getScraps();
         return returnScraps;
     }
 
     @Override
     public boolean addUserScraps(String email, String boardId) {
-        boolean result = userRepository.addUserScraps(email, boardId);
-        return result;
+        return userRepository.addUserScraps(email, boardId);
     }
 
     @Override
     public boolean removeUserScraps(String email, String boardId) {
-        boolean result = userRepository.removeUserScraps(email, boardId);
-        return result;
+        return userRepository.removeUserScraps(email, boardId);
     }
 
     @Override
     public int getUserScrapsCount(String email) {
-        int result = userRepository.findScrapsCountByEmail(email);
-        return result;
+        return userRepository.findScrapsCountByEmail(email);
     }
 
     @Override
     public List<String> getUserFollowers(String email) {
-        List<String> followers = userRepository.findFollowersByEmail(email).getFollowers();
-        return followers;
+        return userRepository.findFollowersByEmail(email).getFollowers();
     }
 
     @Override
     public boolean addUserFollowers(String email, String followerEmail) {
-        boolean result = userRepository.addUserFollowers(email, followerEmail);
-        return result;
+        return userRepository.addUserFollowers(email, followerEmail);
     }
 
     @Override
     public boolean removeUserFollowers(String email, String followerEmail) {
-        boolean result = userRepository.removeUserFollowers(email, followerEmail);
-        return result;
+        return userRepository.removeUserFollowers(email, followerEmail);
     }
 
     @Override
     public List<String> getUserFollowings(String email) {
-        List<String> following = userRepository.findFollowingsByEmail(email).getFollowings();
-        return following;
+        return userRepository.findFollowingsByEmail(email).getFollowings();
     }
 
     @Override
-    public boolean addUserFollowings(String email, String follower) {
-        boolean result = userRepository.addUserFollowings(email, follower);
-        return result;
+    public boolean addUserFollowings(String email, String followEmail) {
+        return userRepository.addUserFollowings(email, followEmail);
     }
 
     @Override
-    public boolean removeUserFollowings(String followEmail, String email) {
-        boolean result = userRepository.removeUserFollowings(followEmail, email);
-        return result;
+    public boolean removeUserFollowings(String email, String followEmail) {
+        return userRepository.removeUserFollowings(email, followEmail);
     }
 
 }

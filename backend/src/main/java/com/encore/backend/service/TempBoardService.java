@@ -3,13 +3,17 @@ package com.encore.backend.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.encore.backend.dto.TempBoardDTO;
 import com.encore.backend.repository.tempboard.TempBoardRepository;
+import com.encore.backend.s3.S3Uploader;
 import com.encore.backend.vo.TempBoard;
 
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,17 +22,16 @@ import lombok.extern.slf4j.Slf4j;
 public class TempBoardService {
 
     private TempBoardRepository tempBoardRepository;
+    private final S3Uploader s3Uploader;
 
     @Autowired
-    public TempBoardService(TempBoardRepository tempBoardRepository) {
+    public TempBoardService(TempBoardRepository tempBoardRepository, S3Uploader s3Uploader) {
         this.tempBoardRepository = tempBoardRepository;
+        this.s3Uploader = s3Uploader;
     }
 
-    public List<TempBoard> findAllByUser_id(String userEmail, int pageNum) {
-        // Page<TempBoard> ret = tempBoardRepository.findAll(userId,
-        // PageRequest.of(pageNum, 10));
-        return tempBoardRepository
-                .findByUserEmail(userEmail, PageRequest.of(pageNum, 10, Sort.Direction.DESC, "userEmail")).getContent();
+    public List<TempBoard> findAllByUser_id(String userEmail, int pageNumber) {
+        return tempBoardRepository.findByUserEmail(userEmail, PageRequest.of(pageNumber, 5)).getContent();
     }
 
     public List<TempBoard> findTempBoard(String id) {
@@ -39,20 +42,26 @@ public class TempBoardService {
         return list;
     }
 
-    public String upsertTempBoard(TempBoard tempBoard) {
+    public String upsertTempBoard(TempBoardDTO tempBoardDTO, MultipartFile titleImageFile) {
+        ModelMapper mapper = new ModelMapper();
+        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        TempBoard tempBoard = mapper.map(tempBoardDTO, TempBoard.class);
         try {
             if (tempBoard.getId() == null) {
-                TempBoard ret = tempBoardRepository.insert(tempBoard);
-                return ret.getId();
+                tempBoard = tempBoardRepository.insert(tempBoard);
             } else {
                 boolean check = tempBoardRepository.existsById(tempBoard.getId());
                 if (!check)
                     return null;
-
-                tempBoardRepository.save(tempBoard);
-                return tempBoard.getId();
             }
-        } catch (Exception e) {
+            tempBoard.setTitleImage(titleImageFile.getOriginalFilename().length() == 0 ? ""
+                    : s3Uploader.upload(titleImageFile, "titleImages", tempBoard.getId()));
+            tempBoardRepository.save(tempBoard);
+            return tempBoard.getId();
+
+        } catch (
+
+        Exception e) {
             log.info("error ", e);
             return null;
         }
@@ -75,8 +84,7 @@ public class TempBoardService {
     }
 
     public long getBoardsCount(String userEmail) {
-        long result = tempBoardRepository.countByUserEmail(userEmail);
-        return result;
+        return tempBoardRepository.countByUserEmail(userEmail);
     }
 
 }

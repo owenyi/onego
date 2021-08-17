@@ -8,6 +8,9 @@ from libs.sentence_complete import complete
 app = Flask(__name__)
 app.debug = True
 
+@app.route('')
+def hello():
+    return "Hello world!"
 
 @app.route("/summarizer", methods=['POST'])
 def get_summarizer():
@@ -30,8 +33,6 @@ def get_complete():
     for r in sentence_complete:
         complete_sentences.append(r)
     return jsonify(complete_sentences)
-
-
 
 
 

@@ -1,9 +1,10 @@
 package com.encore.backend.controller;
 
+import java.io.IOException;
+
 import com.encore.backend.dto.UserDto;
 import com.encore.backend.service.UserService;
 import com.encore.backend.vo.ResponseUser;
-import com.encore.backend.vo.UserVO;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -17,11 +18,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class UserController {
     private UserService userService;
@@ -32,11 +33,10 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<ResponseUser> createUser(@RequestBody UserDto userDto) {
+    public ResponseEntity<ResponseUser> createUser(@RequestBody UserDto userDto) throws IOException {
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        userService.createUser(userDto);
-        ResponseUser responseUser = mapper.map(userDto, ResponseUser.class);
+        ResponseUser responseUser = mapper.map(userService.createUser(userDto), ResponseUser.class);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseUser);
     }
 
@@ -48,9 +48,9 @@ public class UserController {
     }
 
     @PutMapping("/users/{email}")
-    public ResponseEntity<String> updateUser(@PathVariable String email, @RequestBody UserVO user) {
-        boolean result = userService.updateUserByEmail(email, user);
-
+    public ResponseEntity<String> updateUser(@PathVariable String email, @RequestPart UserDto user,
+            @RequestPart MultipartFile profileImageFile) {
+        boolean result = userService.updateUserByEmail(email, user, profileImageFile);
         return ResponseEntity.status(result ? HttpStatus.CREATED : HttpStatus.NO_CONTENT)
                 .body("update user " + (result ? "suceess" : "fail"));
     }
@@ -58,7 +58,6 @@ public class UserController {
     @DeleteMapping("/users/{email}")
     public ResponseEntity<String> deleteUser(@PathVariable String email) {
         boolean result = userService.deleteUserByEmail(email);
-
         return ResponseEntity.status(result ? HttpStatus.CREATED : HttpStatus.NO_CONTENT)
                 .body("delete user " + (result ? "suceess" : "fail"));
     }
