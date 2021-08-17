@@ -29,6 +29,7 @@ deploy:
   env: Onego-env
   bucket_name: elasticbeanstalk-ap-northeast-2-310881911728
   bucket_path: onego
+  on:
     branch: main
   access_key_id: "$AWS_ACCESS_KEY_ID"
   secret_access_key: "$AWS_SECRET_ACCESS_KEY"
