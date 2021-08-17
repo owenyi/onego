@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/")
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class FollowController {
     private UserService userService;
@@ -41,7 +43,6 @@ public class FollowController {
     @PostMapping("/followings/{email}")
     public ResponseEntity<String> addUserFollwing(@PathVariable String email,
             @RequestBody Map<String, Object> parameters) {
-        email = email.trim();
         String followEmail = (String) parameters.get("followEmail");
         boolean result1 = userService.addUserFollowings(email, followEmail);
         boolean result2 = userService.addUserFollowers(followEmail, email);
@@ -53,10 +54,9 @@ public class FollowController {
     @DeleteMapping("/followings/{email}")
     public ResponseEntity<String> removeUserFollower(@PathVariable String email,
             @RequestBody Map<String, Object> parameters) {
-        email = email.trim();
         String followEmail = (String) parameters.get("followEmail");
-        boolean result2 = userService.removeUserFollowings(email, followEmail);
         boolean result1 = userService.removeUserFollowers(followEmail, email);
+        boolean result2 = userService.removeUserFollowings(email, followEmail);
 
         return ResponseEntity.status(result1 && result2 ? HttpStatus.CREATED : HttpStatus.NO_CONTENT)
                 .body("remove follow from user " + (result1 && result2 ? "suceess" : "fail"));

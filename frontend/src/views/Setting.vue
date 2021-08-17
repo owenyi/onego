@@ -2,7 +2,7 @@
 	<div>
 		<v-flex id="setting-margin" class="mx-auto">
 			<div align="center" class="spacing">
-				<h2 id="title">계정설정</h2>
+				<label id="title">계정설정</label>
 			</div>
 			<div class="spacing">
 				<label class="subtitle"><strong>계정</strong></label>

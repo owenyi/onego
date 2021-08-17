@@ -14,7 +14,7 @@ services:
             dockerfile: Dockerfile
             context: ./nginx
         ports:
-            - "80:80"
+            - "8080:80"
     backend:
         build:
             dockerfile: Dockerfile.dev
@@ -22,9 +22,3 @@ services:
         volumes:
             - $HOME/:/.m2
             - ./backend:/app
-    ai:
-        build:
-            dockerfile: Dockerfile
-            context: ./ai
-        volumes:
-            - ./ai:/app

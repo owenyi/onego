@@ -18,16 +18,16 @@
         <v-spacer></v-spacer>
         
         <div class="icon">
-          <v-btn icon class="icon" @click="like">
-            <like-btn/>
+          <v-btn icon  @click="write">
+            <write-btn/>
           </v-btn>
 
-          <v-btn icon class="icon" @click="bookmark">
-            <bookmark-btn/>
+          <v-btn icon  @click="bookmark">
+            <delete-btn/>
           </v-btn>
 
-          <v-btn icon class="icon" @click="comment">
-            <comment-btn/>
+          <v-btn icon class="icon-publish" @click="comment">
+            <publish-btn/>
           </v-btn>
         </div>
         
@@ -132,9 +132,9 @@
 <script lang="ts">
 import Vue from 'vue'
 import Vuetify from 'vuetify/lib'
-import BookmarkBtn from '@/components/buttons/BookmarkBtn.vue'
-import LikeBtn from '@/components/buttons/LikeBtn.vue'
-import CommentBtn from '@/components/buttons/Comment.vue'
+import writeBtn from '@/components/buttons/writeBtn.vue'
+import PostDeleteBtn from '@/components/buttons/PostDeleteBtn.vue'
+import PublishBtn from '@/components/buttons/PublishBtn.vue'
 import Profile from '@/components/layout/Profile.vue'
 import Comment from '@/components/layout/Comment.vue'
 //import TagsBtn from '@/components/buttons/TagsBtn.vue'
@@ -160,9 +160,9 @@ export default Vue.extend({
       ],
     }),
 		components:{
-      'like-btn':LikeBtn,
-      'bookmark-btn':BookmarkBtn,
-      'comment-btn':CommentBtn,
+      'write-btn':writeBtn,
+      'delete-btn':PostDeleteBtn,
+      'publish-btn':PublishBtn,
       'profile':Profile,
       'comment':Comment
       //'tag-btn':TagsBtn

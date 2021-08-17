@@ -28,7 +28,6 @@
 import Vue from 'vue'
 import { Auth } from 'aws-amplify'
 import {validateEmail} from '@/utils/validation'
-import http from '../../http/http-common'
     
     export default Vue.extend({
         name: 'SignUp',
@@ -61,13 +60,10 @@ import http from '../../http/http-common'
                 this.nickname ='';
                 this.$refs.registerEmail.focus();
             },
-            async postUser(email, nickName){
-                await http
-                    .post('/users', {'email': email, 'nickName': nickName })
-                    .then(response => {
-                        console.log(response)
-                    })
-            },
+            // signUp(email, nickname, password) {
+                
+                
+            // },
             signUpCheck(){
                 if(this.registerEmail=='' || this.nickname=='' || this.password ==''){
                     alert("이메일, 닉네임, 그리고 비밀번호를 모두 입력해주세요.");
@@ -92,15 +88,19 @@ import http from '../../http/http-common'
                         }
                     })
                     .then(user =>{
+                        console.log('else '+this.registerEmail+' '+this.nickname)
                         this.$set(this.$parent.$parent.$data.info, 'email', this.registerEmail)
                         this.$set(this.$parent.$parent.$data.info, 'nickname', this.nickname)
-                        this.postUser(this.registerEmail, this.nickname)
                     })
                     .catch(err => {
+                        console.log(err)
+                        console.log(err.code)
                         if(err.code === "UsernameExistsException"){
                             this.reset();
                             alert("이미 등록된 이메일입니다. 다른 이메일을 입력해주세요.");   
                         }
+                        
+                        
                     });
                     
                 } catch (error) {

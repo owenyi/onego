@@ -1,14 +1,24 @@
-import store from "@/store";
 import axios from "axios";
 
 export default axios.create({
-    baseURL: "http://onego-env.eba-nasmictx.ap-northeast-2.elasticbeanstalk.com/api",
+    baseURL: "http://127.0.0.1:80/api",
     headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': '*',
         'Content-Type': 'application/json; charset = utf-8',
-        'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS',
-        'Context-Type': 'multipart/form-data',
-        'Authorization': store.state.accessToken
+        'Access-Control-Allow-Methods': 'GET, PUT, POST, DELETE, OPTIONS'
     }
 });
+
+// export default axios.create({
+//     baseURL: "http://127.0.0.1:8080",
+//     withCredentials: false,
+//     headers: {
+//       'Content-Type': 'application/json',
+//       'Authorization': 'Bearer ' + localStorage.token,
+//       'Access-Control-Allow-Origin': '*',
+//       'Accept' : 'application/json, text/plain, */*',
+//       'Access-Control-Allow-Methods' : 'GET, PUT, POST, DELETE, OPTIONS',
+//       'Access-Control-Allow-Credentials' : true
+//     }
+// });

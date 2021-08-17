@@ -21,7 +21,6 @@ import Vue from 'vue'
 import { Auth } from 'aws-amplify';
 import router from '../../router'
 import {validateEmail} from '@/utils/validation'
-import http from '../../http/http-common'
         
     export default Vue.extend({
         props: {
@@ -57,18 +56,7 @@ import http from '../../http/http-common'
                 this.password='';
                 this.$refs.email.focus();
             },
-            getUserInfo(){
-               http
-                    .get('/users/'+this.email)
-                    .then(response => {
-                        this.$store.commit('setUserInfo', response.data);
-                    })
-                    .catch(() => this.errored = true )
-                    .finally(() => {
-                        this.loading = false
-                    })  
-            },
-            async login(){
+            login(){
                 if(validateEmail(this.email)==false){
                     alert("이메일 형식이 올바르지 않습니다.");
                     this.reset();
@@ -79,19 +67,27 @@ import http from '../../http/http-common'
                     return;
                 }
                 try {
-                    await Auth.signIn(this.email, this.password)
+                    Auth.signIn(this.email, this.password)
                             .then(user => {
                                 this.$store.commit('changeSignedInState', user);
+                                // this.$store.state.user.userInfo = user;
                                 router.push({ name: 'Main'})
+                                console.log("current Session")
+                                console.log("store token before")
+                                console.log(this.$store.state.accessToken)
                                 Auth.currentSession()
                                     .then(result => {
                                         console.log(result)
                                         this.$store.commit('setAccessToken', result.accessToken.jwtToken);
                                     })
-                                this.getUserInfo()
+                                
+
                             })
                             .catch(err => {
+                                console.log(err)
+                                console.log(err.code)
                                 this.err = err
+                                console.log(this.err.code)
                                 if(err.code === "NotAuthorizedException"){
                                         alert("이메일 혹은 비밀번호가 잘못되었습니다.");
                                         this.reset();

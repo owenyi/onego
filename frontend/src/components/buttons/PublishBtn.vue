@@ -3,8 +3,9 @@
 		rounded
 		outlined
 		color="#00d5aa"
-		class="btn">
-		수정
+		class="btn"
+		@click="publish">
+		발행
 	</v-btn>
 </template>
 
@@ -15,6 +16,11 @@
 		name:"PublishBtn",
 		data: ()=>({
 		}),
+		methods:{
+			publish(){
+				this.$emit('publish', true);
+			}
+		}
 	})
 </script>
 

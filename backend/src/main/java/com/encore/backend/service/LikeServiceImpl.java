@@ -2,7 +2,7 @@ package com.encore.backend.service;
 
 import com.encore.backend.repository.board.BoardRepository;
 import com.encore.backend.repository.user.UserRepository;
-import com.encore.backend.vo.BoardVO;
+import com.encore.backend.vo.Board;
 import com.encore.backend.vo.UserVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +26,11 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public int getBoardLikes(String boardId) {
-        Optional<BoardVO> boardDto = boardRepository.findById(boardId);
+        Optional<Board> boardDto = boardRepository.findById(boardId);
         if (boardDto == null)
             throw new IllegalArgumentException();
 
-        BoardVO board = boardDto.get();
+        Board board = boardDto.get();
         return board.getLikes();
     }
 

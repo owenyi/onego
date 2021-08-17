@@ -42,13 +42,13 @@
 				<div class="side-itms">
 					<a href="/myprofile">
 					<v-list-item-avatar size=90 class="mx-auto">
-						<img :src="$store.state.user.userInfo.profileImage">
+						<img src="https://randomuser.me/api/portraits/women/82.jpg">
 					</v-list-item-avatar>
 					</a>
 				</div>
 				<div class="side-itms">
 					<v-list-item-content>
-						<v-list-item-title>{{this.$store.state.user.userAccount.attributes.nickname}}</v-list-item-title>
+						<v-list-item-title>{{this.$store.state.user.userInfo.attributes.nickname}}</v-list-item-title>
 					</v-list-item-content>
 				</div>
 			</div>
@@ -113,7 +113,7 @@
 						v-for="item in categories"
 						:key="item.title">
 							<v-list-item-content>
-								<v-btn text><v-list-item-title>{{ item.title }}</v-list-item-title></v-btn>
+								<v-btn text :href="item.link"><v-list-item-title>{{ item.title }}</v-list-item-title></v-btn>
 							</v-list-item-content>
 						</v-list-item>
 					</div>
@@ -139,17 +139,12 @@
 	import LogoutBtn from '@/components/buttons/LogoutBtn.vue'
 	import SignupBtn from '@/components/buttons/SignupBtn.vue'
 	import SettingBtn from '@/components/buttons/SettingBtn.vue'
-	// import LikeBtn from '@/components/buttons/LikeBtn.vue'
-	// import BookmarkBtn from '@/components/buttons/BookmarkBtn.vue'
-	// import PostDeleteBtn from '@/components/buttons/PostDeleteBtn.vue'
-	// import PublishBtn from '@/components/buttons/PublishBtn.vue'
-	// import Comment from '@/components/buttons/Comment.vue'
-	import PostBtn from '@/components/buttons/write/PostBtn.vue'
 	import DeleteBtn from '@/components/buttons/write/DeleteBtn.vue'
+	import PostBtn from '@/components/buttons/write/PostBtn.vue'
 	import PreviewBtn from '@/components/buttons/write/PreviewBtn.vue'
 	import SaveBtn from '@/components/buttons/write/SaveBtn.vue'
 	import SearchModal from '@/views/SearchModal.vue'
-  import http from "@/http/http-common";
+
 	export default Vue.extend({
 		data: () => ({
 			drawer: false,
@@ -168,8 +163,8 @@
 				{ title: '스크랩', link: '/scrap'},
 			],
 			categories:[
-				{title:'일상'},
-				{title:'시사·이슈'},
+				{title:'일상', link: '/content'},
+				{title:'시사·이슈', link: '/myContent'},
 				{title:'IT 트렌드'},
 				{title:'요리·레시피'},
 				{title:'운동·건강'},
@@ -205,6 +200,7 @@
 				document.getElementById('cate-btn')!.style.color = "#9E9E9E";
 				this.showMenu = true;
 				this.showCate = false;
+
 			}
 		}
 	})
@@ -222,6 +218,7 @@
 	}
 	.side-itms{
 		text-align:center;
+
 	}
 	.v-btn::before{
 		background-color: transparent !important;

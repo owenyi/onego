@@ -1,10 +1,9 @@
 package com.encore.backend.controller;
 
-import java.io.IOException;
-
 import com.encore.backend.dto.UserDto;
 import com.encore.backend.service.UserService;
 import com.encore.backend.vo.ResponseUser;
+import com.encore.backend.vo.UserVO;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
@@ -19,9 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/")
@@ -35,10 +32,11 @@ public class UserController {
     }
 
     @PostMapping("/users")
-    public ResponseEntity<ResponseUser> createUser(@RequestBody UserDto userDto) throws IOException {
+    public ResponseEntity<ResponseUser> createUser(@RequestBody UserDto userDto) {
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        ResponseUser responseUser = mapper.map(userService.createUser(userDto), ResponseUser.class);
+        userService.createUser(userDto);
+        ResponseUser responseUser = mapper.map(userDto, ResponseUser.class);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseUser);
     }
 
@@ -50,11 +48,8 @@ public class UserController {
     }
 
     @PutMapping("/users/{email}")
-    public ResponseEntity<String> updateUser(@PathVariable String email, @RequestPart UserDto user,
-            @RequestPart MultipartFile profileImageFile) {
-        if (profileImageFile.getOriginalFilename().equals(""))
-            profileImageFile = null;
-        boolean result = userService.updateUserByEmail(email, user, profileImageFile);
+    public ResponseEntity<String> updateUser(@PathVariable String email, @RequestBody UserVO user) {
+        boolean result = userService.updateUserByEmail(email, user);
 
         return ResponseEntity.status(result ? HttpStatus.CREATED : HttpStatus.NO_CONTENT)
                 .body("update user " + (result ? "suceess" : "fail"));

@@ -1,98 +1,75 @@
 <template>
-    <div id="profile">
-        <div class="profile-text">
-            <span class="profile-img">
-                <div class="profile-avatar">
-                    <a href="/myprofile"><img class="img" :src="user.profileImage"></a>
-                </div>
-            </span>
-            <a href="/myprofile" style="height: 25px; color: #555555; text-decoration: none; vertical-align: middle; float:left;">
-                <span class="profile-name">
-                    {{ user.nickName }}
-                </span>
-            </a>
-            <div style="margin-top:5px; margin-bottom:14px; padding-top:20px; vertical-align: middle;"><v-btn
-                outlined
-                rounded
-                text
-                width="60"
-                height="28"
+    <div id="item">
+        <v-card
+            class="mx-auto"
+            width="100%"
+            height="215"
+            elevation="1"
+        >
+            <v-list-item three-line>
+                <v-list-item-content class="text">
+                    <v-list-item-title class="name">
+                        집게사장 
+                        <v-btn
+                        outlined
+                        rounded
+                        text
+                        width="70"
+                        height="30"
+                        >
+                        구독
+                        </v-btn>
+                    </v-list-item-title>
+                    <div class="text-description">
+                        저희 게살버거가 정말 맛있습니다
+                    </div>
+                    <v-list-item-subtitle class="text-info">
+                        게살버거 5000원 (+set 2500원) / 별점 5점 사진리뷰시 음료무제한!
+
+                        
+                    </v-list-item-subtitle>
+                </v-list-item-content>
+                    
+                <v-list-item-avatar
+                    size="180"
+                    color="grey"
+                    class="avatar"
                 >
-                구독
-            </v-btn>
-            </div>
-            <div class="profile-text-description">
-                {{ user.email }}
-            </div>
-            <div class="profile-text-info">
-                {{ user.intro }}
-            </div>
-        </div>
-    </div>   
+                    <v-img
+                        alt="avatar"
+                        src="https://w.namu.la/s/986b0d64e035c2fc42127b088a3839345f7bbc7c4214a9d282dbb41a989cd7b04e6283fa1a9d854fc880d5d8d0457925dae7db3228856e092222f19a2dced1fe298ad5d8d0472b1c511aa4a80d2251e07d04682c9888838951cd30cff93d299f"
+                    ></v-img>
+                </v-list-item-avatar>
+            </v-list-item>
+        </v-card>  
+    </div>     
 </template>
 
 <script lang="ts">
 import Vue from 'vue'
-import http from '../../http/http-common'
-
-declare interface User{
-    nickName:string,
-    email:string,
-	intro:string,
-	profileImage:string
-}
-
 export default Vue.extend({
-    props: {
-        id: String
-    },
-    data: () => ({
-        user: {} as User,
-    }),
-    methods: {
-        getUserInfo(id : string){//userEmail을 넣어야하는거 아닌가요? this.$store.state.user.userAccount.attributes.email]
-            console.log(id)
-            http
-            .get('/users/'+id)
-            .then(response => {
-                console.log(response.data)
-                this.user=response.data
-            })
-        },
-    },
-    watch: {
-        id(){
-            console.log(this.id)
-            this.getUserInfo(this.id)
-        }
-    },
+      data: () => ({
+          return: {
+          name: "집게사장",
+          description: "저희 게살버거가 정말 맛있습니다",
+          info: "게살버거 5000원 (+set 2500원) / 별점 5점 사진리뷰시 음료무제한!"
+       },
+      })
 })
 </script>
 
 <style>
-#profile{
-    margin: auto;
-    max-width:50% !important;
-    box-shadow: 3px 3px 8px lightgray;
+.text{
+    padding: 0 10 0 0;
 }
-.profile-text{
-    padding-left: 25px;
-    padding-top: 10px;
-    font-family: Noto Sans KR;
-}
-.profile-name{
+.name{
     font-size : 1.5rem; 
     font-weight: 500; 
-    padding-right: 10px;
+    padding-top: 10;
 }
-.profile-link{
-    color: #555555;
-    text-decoration: none;
-}
-.profile-text-description{
+.text-description{
     font-size : 1.1rem; 
     font-weight: 300; 
-    color: #555555;
     /* 글자수 제한*/
     overflow: hidden;
     text-overflow: ellipsis;
@@ -103,8 +80,8 @@ export default Vue.extend({
     height: 1.7em; /*height는 1.7em * 3줄 = 5.1em */
   }
 
-.profile-text-info{
-    color: #555555;
+.text-info{
+    color: gray;
     font-size : 1.1rem; 
     line-height: 1.7em; 
     font-weight: 300; 
@@ -116,22 +93,9 @@ export default Vue.extend({
     -webkit-line-clamp: 1; 
     -webkit-box-orient: vertical;
     word-wrap:break-word; 
-    height: 5.1em; /*height는 1.7em * 1줄 = 5.1em */
+    height: 5.1em; /*height는 1.7em * 3줄 = 5.1em */
 }
-.profile-img{
-  float: right;
-  margin-right: 30px;
-  margin-bottom: 5px;
-}
-.profile-avatar{
-  width: 150px;
-  height: 150px; 
-  border-radius: 70%;
-  overflow: hidden;
-}
-.img{
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.avatar{
+    margin-right: 50;
 }
 </style>

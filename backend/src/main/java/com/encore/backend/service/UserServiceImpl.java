@@ -1,38 +1,33 @@
 package com.encore.backend.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.encore.backend.dto.UserDto;
 import com.encore.backend.repository.user.UserRepository;
-import com.encore.backend.s3.S3Uploader;
 import com.encore.backend.vo.UserVO;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
-    private final S3Uploader s3Uploader;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, S3Uploader s3Uploader) {
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.s3Uploader = s3Uploader;
     }
 
     @Override
-    public UserDto createUser(UserDto userDto) throws IOException {
+    public UserDto createUser(UserDto userDto) {
         ModelMapper mapper = new ModelMapper();
         mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         UserVO user = mapper.map(userDto, UserVO.class);
-        user.setIntro("");
         user.setFollowers(new ArrayList<String>());
         user.setFollowings(new ArrayList<String>());
         user.setLikes(new ArrayList<String>());
@@ -70,33 +65,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean updateUserByEmail(String email, UserDto userDto, MultipartFile profileImage) {
-        ModelMapper mapper = new ModelMapper();
-        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        UserVO userVO = mapper.map(userDto, UserVO.class);
-        boolean result = true;
-        try {
-            if (profileImage != null)
-                userVO.setProfileImage(s3Uploader.upload(profileImage, "profileImages", email));
-            result = userRepository.updateUserByEmail(email, userVO);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
+    public boolean updateUserByEmail(String email, UserVO user) {
+        boolean result = userRepository.updateUserByEmail(email, user);
         return result;
     }
 
     @Override
     public boolean deleteUserByEmail(String email) {
-        boolean result = true;
-        try {
-            s3Uploader.remove(email);
-            result = userRepository.deleteUserByEmail(email);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-        return result;
+        boolean flag = userRepository.deleteUserByEmail(email);
+        return flag;
     }
 
     @Override
@@ -150,14 +127,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean addUserFollowings(String email, String followEmail) {
-        boolean result = userRepository.addUserFollowings(email, followEmail);
+    public boolean addUserFollowings(String email, String follower) {
+        boolean result = userRepository.addUserFollowings(email, follower);
         return result;
     }
 
     @Override
-    public boolean removeUserFollowings(String email, String followEmail) {
-        boolean result = userRepository.removeUserFollowings(email, followEmail);
+    public boolean removeUserFollowings(String followEmail, String email) {
+        boolean result = userRepository.removeUserFollowings(followEmail, email);
         return result;
     }
 
