@@ -5,8 +5,8 @@ spring:
       - credentials
   data:
     mongodb:
-      host: onegodev.ddns.net
-      port: 2727
+      host: localhost
+      port: 27017
       authentication-database: admin
       database: onego
       username: onego
